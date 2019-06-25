@@ -32,6 +32,7 @@ FileWriteLine( $sTextFile, @CRLF & "---- Recording Session on " & _Now() & " ---
 
 $iCounter = 0
 $sPrevLine = ''
+$username = FileRead ( "username.txt" )
 While $iCounter <= 5 ; 5 seconds, each 1 seconds
    $sTitle = WinGetTitle( "[ACTIVE]" )
    $sPath = _WinGetPath( $sTitle )
@@ -69,7 +70,7 @@ While $iCounter <= 5 ; 5 seconds, each 1 seconds
 		$file = $oDoc
    EndIf
    ConsoleWrite("Check DOM complete" & @CRLF)
-   SendRecord($file, $sPath, $appName)
+   SendRecord($file, $sPath, $appName, $username)
    FileWriteLine( $sTextFile, $formattedNow & ";" & $sTitle & ";" & $sPath & " | " & $appName)
    $iCounter = $iCounter + 1
    Sleep( 1000 )
