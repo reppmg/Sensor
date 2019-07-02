@@ -1,8 +1,13 @@
+
 #include <Word.au3>
 #include <Excel.au3>
 #include <Powerpoint.au3>
 #include <Date.au3>
 #include <Influx.au3>
+
+#include <MsgBoxConstants.au3>
+#include "formGen.au3"
+#Include <Array.au3>
 
 
 Func _WinGetPath($Title="", $strComputer='localhost')
@@ -46,16 +51,28 @@ While $iCounter <= 5 ; 5 seconds, each 1 seconds
    ConsoleWrite("App name = " & $appName & @CRLF)
    $file = ""
    if ($appName == "Word") Then
-	    ConsoleWrite("Check word")
-	    Local $word = _Word_Create()
-		If @error <> 0 Then Exit MsgBox($MB_SYSTEMMODAL, "Word UDF: _Word_Create Example", _
-        "Error creating a new Word application object." & @CRLF & "@error = " & @error & ", @extended = " & @extended)
-		Local $oDoc = _Word_DocGet($word, 0)
+	    ConsoleWrite("Check word" & @CRLF)
+	    ;Local $word = _Word_Create()
+		If @error <> 0 Then ConsoleWrite("Error creating a new Word application object." & @CRLF & "@error = " & @error & ", @extended = " & @extended & @CRLF)
+		Local $oWord = ObjGet("", "Word.Application") ;_Word_DocGet($word, 0)
 		;If @error Then Exit MsgBox($MB_SYSTEMMODAL, "Word UDF: _Word_DocGet Example", _
        ; "Error accessing collection of documents." & @CRLF & "@error = " & @error & ", @extended = " & @extended)
 		;MsgBox($MB_SYSTEMMODAL, "Word UDF: _Word_DocGet Example", "First document in the document collection has been selected." & _
        ; @CRLF & "Name is: " & $oDoc.Name & @CRLF & "Total number of documents in the collection: " & @extended)
-		$file = $oDoc.Name
+
+		If IsObj($oWord) then
+			Local $nDocs = $oWord.Documents.Count
+			Local $aWord = $oWord.ActiveDocument
+			ConsoleWrite("active: " & $aWord.Name & @CRLF)
+			If IsObj($aWord) Then
+				$file = $aWord.Name
+			EndIf
+		EndIf
+;	    if IsObj($oDoc) then
+;		  $file = $oDoc.Name
+;		else
+;		  ConsoleWrite("Error creating a new Word application object." & @CRLF & "@error = " & @error & ", @extended = " & @extended & @CRLF)
+;		EndIf
    EndIf
    if ($appName == "PowerPoint") Then
 	    ConsoleWrite("Check ppt")
