@@ -1,7 +1,4 @@
 #include <Timers.au3>
-#include <Word.au3>
-#include <Excel.au3>
-#include <Powerpoint.au3>
 #include <Date.au3>
 #include <Influx.au3>
 
@@ -20,7 +17,6 @@ Func _WinGetPath($Title="", $strComputer='localhost')
 	$objWMIService = ObjGet("winmgmts:\\" & $strComputer & "\root\CIMV2")
 	$colItems = $objWMIService.ExecQuery ("SELECT * FROM Win32_Process WHERE ProcessId = " & $pid, "WQL", _
 		 $wbemFlagReturnImmediately + $wbemFlagForwardOnly)
-	;ConsoleWrite('@@ Debug(' & $handle & ')' & @CRLF)
 
 	If IsObj($colItems) Then
 	  For $objItem In $colItems
@@ -31,7 +27,7 @@ EndFunc
 
 
 MsgBox(1, "Start", "Start recording")
-$idleTimeThreshold = 10 * 1000 ; 10 minutes
+$idleTimeThreshold = 600 * 1000 ; 10 minutes
 $recordInterval = 1000 ; 1 sec
 $oErrorHandler = ObjEvent("AutoIt.Error", "ComErrorHandler")
 $sTextFile = "C:\Temp\ActivityLog.csv"
@@ -40,7 +36,7 @@ FileWriteLine( $sTextFile, @CRLF & "---- Recording Session on " & _Now() & " ---
 $iCounter = 0
 $sPrevLine = ''
 $username = FileRead ( "username.txt" )
-While $iCounter <= 15 ; 5 seconds, each 1 seconds
+While $iCounter <= 5 ; 5 seconds, each 1 seconds
 	Local $iIdleTime = _Timer_GetIdleTime()
 	If $idleTimeThreshold < $iIdleTime Then
 		Sleep($recordInterval)
@@ -50,8 +46,6 @@ While $iCounter <= 15 ; 5 seconds, each 1 seconds
 	EndIf
 	$sTitle = WinGetTitle( "[ACTIVE]" )
 	$sPath = _WinGetPath( $sTitle )
-	; $sText = WinGetText( "[ACTIVE]" )
-	; $sText = StringStripCR( $sText )
 	$formattedNow = StringReplace(_Now(), " ", ";")
 	ConsoleWrite("Title = " & $sTitle & @CRLF)
 	$split = StringSplit($sTitle, " - ", 1)
@@ -85,8 +79,14 @@ While $iCounter <= 15 ; 5 seconds, each 1 seconds
 	EndIf
 	if ($appName == "Excel") Then
 	    ConsoleWrite("Check excel" & @CRLF)
-	    Local $oExcel = ObjGet("", "Excel.Application") ; Create an Excel Object
-		$file = $oExcel.ActiveWorkBook.Name
+
+		Local $oExcel = ObjGet("", "Excel.Application") ; Create an Excel Object
+		If IsObj($oExcel) Then
+			$file = $oExcel.ActiveWorkBook.Name
+			If @error Then
+
+			EndIf
+		EndIf
 	EndIf
 	ConsoleWrite("Check DOM complete" & @CRLF)
 	SendRecord($file, $sPath, $appName, $username)
